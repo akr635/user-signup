@@ -40,7 +40,7 @@ page_footer = """
 """
 
 form = """
-    <form method="post">
+    <form method="post" novalidate>
         <label>Username
             <input name="username" type="text" value="%(username)s">
             <span class="error">%(username_error)s</span>
@@ -94,30 +94,33 @@ class MainHandler(webapp2.RequestHandler):
         self.write_form()
 
     def post(self):
+        have_error = False
         username = self.request.get("username")
         password = self.request.get("password")
         verify = self.request.get("verify")
         email = self.request.get("email")
 
-
         username_error = ""
         if not valid_username(username):
             username_error += "Please enter a valid username."
+            have_error = True
 
         password_error = ""
         if not valid_password(password):
             password_error += "Please enter a valid password."
+            have_error = True
 
         verify_error = ""
         if password != verify:
             verify_error += "Your passwords don't match."
+            have_error = True
 
         email_error = ""
         if not valid_email(email):
             email_error += "Your email address is not valid."
+            have_error = True
 
-        if not (valid_username and valid_password and password == verify and
-        valid_email):
+        if have_error == True:
             self.write_form(username, username_error, password_error,
             verify_error, email, email_error)
         else:
